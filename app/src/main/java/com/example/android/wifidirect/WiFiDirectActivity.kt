@@ -46,7 +46,12 @@ class WiFiDirectActivity : AppCompatActivity(), ChannelListener, DeviceActionLis
     private var isWifiP2pEnabled = false
     private var retryChannel = false
 
-    private val intentFilter = IntentFilter()
+    private val intentFilter = IntentFilter().apply {
+        addAction(WIFI_P2P_STATE_CHANGED_ACTION)
+        addAction(WIFI_P2P_PEERS_CHANGED_ACTION)
+        addAction(WIFI_P2P_CONNECTION_CHANGED_ACTION)
+        addAction(WIFI_P2P_THIS_DEVICE_CHANGED_ACTION)
+    }
     private var channel: Channel? = null
     private var receiver: BroadcastReceiver? = null
 
@@ -63,25 +68,27 @@ class WiFiDirectActivity : AppCompatActivity(), ChannelListener, DeviceActionLis
 
         // add necessary intent values to be matched.
 
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION)
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION)
 
         manager = getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
-        channel = manager!!.initialize(this, mainLooper, null)
+        channel = manager?.initialize(this, mainLooper, null)
+        channel?.also { channel ->
+            receiver = WiFiDirectBroadcastReceiver(manager, channel, this)
+        }
     }
 
     /** register the BroadcastReceiver with the intent values to be matched  */
     public override fun onResume() {
         super.onResume()
-        receiver = WiFiDirectBroadcastReceiver(manager, channel!!, this)
-        registerReceiver(receiver, intentFilter)
+        receiver?.also { receiver ->
+            registerReceiver(receiver, intentFilter)
+        }
     }
 
     public override fun onPause() {
         super.onPause()
-        unregisterReceiver(receiver)
+        receiver?.also { receiver ->
+            unregisterReceiver(receiver)
+        }
     }
 
     /**
@@ -89,12 +96,12 @@ class WiFiDirectActivity : AppCompatActivity(), ChannelListener, DeviceActionLis
      * BroadcastReceiver receiving a state change event.
      */
     fun resetData() {
-        val fragmentList = fragmentManager
+        val fragmentList = supportFragmentManager
                 .findFragmentById(R.id.frag_list) as DeviceListFragment
-        val fragmentDetails = fragmentManager
+        val fragmentDetails = supportFragmentManager
                 .findFragmentById(R.id.frag_detail) as DeviceDetailFragment
-        fragmentList?.clearPeers()
-        fragmentDetails?.resetViews()
+        fragmentList.clearPeers()
+        fragmentDetails.resetViews()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -129,10 +136,10 @@ class WiFiDirectActivity : AppCompatActivity(), ChannelListener, DeviceActionLis
                             Toast.LENGTH_SHORT).show()
                     return true
                 }
-                val fragment = fragmentManager
+                val fragment = supportFragmentManager
                         .findFragmentById(R.id.frag_list) as DeviceListFragment
                 fragment.onInitiateDiscovery()
-                manager!!.discoverPeers(channel, object : WifiP2pManager.ActionListener {
+                manager!!.discoverPeers(channel, object : ActionListener {
 
                     override fun onSuccess() {
                         Toast.makeText(this@WiFiDirectActivity, "Discovery Initiated",
@@ -151,7 +158,7 @@ class WiFiDirectActivity : AppCompatActivity(), ChannelListener, DeviceActionLis
     }
 
     override fun showDetails(device: WifiP2pDevice) {
-        val fragment = fragmentManager
+        val fragment = supportFragmentManager
                 .findFragmentById(R.id.frag_detail) as DeviceDetailFragment
         fragment.showDetails(device)
 
@@ -172,7 +179,7 @@ class WiFiDirectActivity : AppCompatActivity(), ChannelListener, DeviceActionLis
     }
 
     override fun disconnect() {
-        val fragment = fragmentManager
+        val fragment = supportFragmentManager
                 .findFragmentById(R.id.frag_detail) as DeviceDetailFragment
         fragment.resetViews()
         manager!!.removeGroup(channel, object : ActionListener {

@@ -59,13 +59,6 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
             }
             progressDialog = ProgressDialog.show(activity, "Press back to cancel",
                     "Connecting to :" + device!!.deviceAddress, true, true
-                    //                        new DialogInterface.OnCancelListener() {
-                    //
-                    //                            @Override
-                    //                            public void onCancel(DialogInterface dialog) {
-                    //                                ((DeviceActionListener) getActivity()).cancelDisconnect();
-                    //                            }
-                    //                        }
             )
             (activity as DeviceActionListener).connect(config)
         }
@@ -111,7 +104,7 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
 
         // The owner IP is now known.
         var view = mContentView!!.findViewById<View>(R.id.group_owner) as TextView
-        view.text = resources.getString(R.string.group_owner_text) + if (info.isGroupOwner == true)
+        view.text = resources.getString(R.string.group_owner_text) + if (info.isGroupOwner)
             resources.getString(R.string.yes)
         else
             resources.getString(R.string.no)
@@ -180,11 +173,7 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
      * @param statusText
      */
     (private val context: Context, statusText: View) : AsyncTask<Void, Void, String>() {
-        private val statusText: TextView
-
-        init {
-            this.statusText = statusText as TextView
-        }
+        private val statusText: TextView = statusText as TextView
 
         override fun doInBackground(vararg params: Void): String? {
             try {
@@ -221,7 +210,7 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
             if (result != null) {
                 statusText.text = "File copied - $result"
                 val intent = Intent()
-                intent.action = android.content.Intent.ACTION_VIEW
+                intent.action = Intent.ACTION_VIEW
                 intent.setDataAndType(Uri.parse("file://$result"), "image/*")
                 context.startActivity(intent)
             }
@@ -240,7 +229,7 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
 
     companion object {
 
-        protected const val CHOOSE_FILE_RESULT_CODE = 20
+        const val CHOOSE_FILE_RESULT_CODE = 20
 
         fun copyFile(inputStream: InputStream, out: OutputStream): Boolean {
             val buf = ByteArray(1024)

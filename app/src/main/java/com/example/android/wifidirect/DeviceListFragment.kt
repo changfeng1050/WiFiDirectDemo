@@ -60,13 +60,13 @@ class DeviceListFragment : ListFragment(), PeerListListener {
 
     private fun getDeviceStatus(deviceStatus: Int): String {
         Log.d(WiFiDirectActivity.TAG, "Peer status :$deviceStatus")
-        when (deviceStatus) {
-            WifiP2pDevice.AVAILABLE -> return "Available"
-            WifiP2pDevice.INVITED -> return "Invited"
-            WifiP2pDevice.CONNECTED -> return "Connected"
-            WifiP2pDevice.FAILED -> return "Failed"
-            WifiP2pDevice.UNAVAILABLE -> return "Unavailable"
-            else -> return "Unknown"
+        return when (deviceStatus) {
+            WifiP2pDevice.AVAILABLE -> "Available"
+            WifiP2pDevice.INVITED -> "Invited"
+            WifiP2pDevice.CONNECTED -> "Connected"
+            WifiP2pDevice.FAILED -> "Failed"
+            WifiP2pDevice.UNAVAILABLE -> "Unavailable"
+            else -> "Unknown"
         }
     }
 
