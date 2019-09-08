@@ -16,7 +16,6 @@
 
 package com.example.android.wifidirect
 
-import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -24,18 +23,15 @@ import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
-import android.net.wifi.p2p.WifiP2pManager.ActionListener
-import android.net.wifi.p2p.WifiP2pManager.Channel
-import android.net.wifi.p2p.WifiP2pManager.ChannelListener
+import android.net.wifi.p2p.WifiP2pManager.*
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-
+import androidx.appcompat.app.AppCompatActivity
 import com.example.android.wifidirect.DeviceListFragment.DeviceActionListener
 
 /**
@@ -45,7 +41,7 @@ import com.example.android.wifidirect.DeviceListFragment.DeviceActionListener
  * The application should also register a BroadcastReceiver for notification of
  * WiFi state related events.
  */
-class WiFiDirectActivity : Activity(), ChannelListener, DeviceActionListener {
+class WiFiDirectActivity : AppCompatActivity(), ChannelListener, DeviceActionListener {
     private var manager: WifiP2pManager? = null
     private var isWifiP2pEnabled = false
     private var retryChannel = false
@@ -215,11 +211,11 @@ class WiFiDirectActivity : Activity(), ChannelListener, DeviceActionListener {
          * request
          */
         if (manager != null) {
-            val fragment = fragmentManager
+            val fragment = supportFragmentManager
                     .findFragmentById(R.id.frag_list) as DeviceListFragment
-            if (fragment.device == null || fragment.device.status == WifiP2pDevice.CONNECTED) {
+            if (fragment.device == null || fragment.device!!.status == WifiP2pDevice.CONNECTED) {
                 disconnect()
-            } else if (fragment.device.status == WifiP2pDevice.AVAILABLE || fragment.device.status == WifiP2pDevice.INVITED) {
+            } else if (fragment.device!!.status == WifiP2pDevice.AVAILABLE || fragment.device!!.status == WifiP2pDevice.INVITED) {
 
                 manager!!.cancelConnect(channel, object : ActionListener {
 

@@ -64,7 +64,7 @@ class WiFiDirectBroadcastReceiver
             // request available peers from the wifi p2p manager. This is an
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
-            manager?.requestPeers(channel, activity.fragmentManager
+            manager?.requestPeers(channel, activity.supportFragmentManager
                     .findFragmentById(R.id.frag_list) as PeerListListener)
             Log.d(WiFiDirectActivity.TAG, "P2P peers changed")
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION == action) {
@@ -81,15 +81,15 @@ class WiFiDirectBroadcastReceiver
                 // we are connected with the other device, request connection
                 // info to find group owner IP
 
-                val fragment = activity
-                        .fragmentManager.findFragmentById(R.id.frag_detail) as DeviceDetailFragment
+                val fragment = activity.supportFragmentManager
+                        .findFragmentById(R.id.frag_detail) as DeviceDetailFragment
                 manager.requestConnectionInfo(channel, fragment)
             } else {
                 // It's a disconnect
                 activity.resetData()
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION == action) {
-            val fragment = activity.fragmentManager
+            val fragment = activity.supportFragmentManager
                     .findFragmentById(R.id.frag_list) as DeviceListFragment
             fragment.updateThisDevice(intent.getParcelableExtra<Parcelable>(
                     WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as WifiP2pDevice)
