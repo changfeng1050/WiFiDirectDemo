@@ -22,6 +22,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
+import android.net.wifi.p2p.WifiP2pGroup
 import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.WifiP2pManager.*
 import android.os.Bundle
@@ -33,6 +34,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.android.wifidirect.DeviceListFragment.DeviceActionListener
+import java.util.*
 
 /**
  * An activity that uses WiFi Direct APIs to discover and connect with available
@@ -142,15 +144,21 @@ class WiFiDirectActivity : AppCompatActivity(), ChannelListener, DeviceActionLis
                 manager!!.discoverPeers(channel, object : ActionListener {
 
                     override fun onSuccess() {
+                        Log.d(TAG, "Discovery Initiated")
                         Toast.makeText(this@WiFiDirectActivity, "Discovery Initiated",
                                 Toast.LENGTH_SHORT).show()
                     }
 
                     override fun onFailure(reasonCode: Int) {
+                        Log.d(TAG, "Discovery Failed:$reasonCode")
                         Toast.makeText(this@WiFiDirectActivity, "Discovery Failed : $reasonCode",
                                 Toast.LENGTH_SHORT).show()
                     }
                 })
+                return true
+            }
+            R.id.atn_create_group -> {
+                createGroup()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -239,10 +247,29 @@ class WiFiDirectActivity : AppCompatActivity(), ChannelListener, DeviceActionLis
                 })
             }
         }
+    }
 
+
+    private fun createGroup() {
+        manager?.also { manager ->
+
+            manager.requestGroupInfo(channel) { group ->
+                Log.d(TAG, "createGroup group:$group")
+            }
+
+            manager.createGroup(channel, object : ActionListener {
+                override fun onSuccess() {
+                    Toast.makeText(this@WiFiDirectActivity, "create group success", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onFailure(reason: Int) {
+                    Toast.makeText(this@WiFiDirectActivity, "create group failure", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
     }
 
     companion object {
-        const val TAG = "wifidirectdemo"
+        private const val TAG = "wifidirectdemo"
     }
 }

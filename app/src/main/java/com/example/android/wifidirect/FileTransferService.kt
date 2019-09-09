@@ -21,7 +21,6 @@ import java.net.Socket
  * socket connection with the WiFi Direct Group Owner and writing the file
  */
 class FileTransferService : IntentService {
-
     constructor(name: String) : super(name) {}
 
     constructor() : super("FileTransferService") {}
@@ -40,24 +39,24 @@ class FileTransferService : IntentService {
             val port = intent.extras!!.getInt(EXTRAS_GROUP_OWNER_PORT)
 
             try {
-                Log.d(WiFiDirectActivity.TAG, "Opening client socket - ")
+                Log.d(TAG, "Opening client socket - ")
                 socket.bind(null)
                 socket.connect(InetSocketAddress(host, port), SOCKET_TIMEOUT)
 
-                Log.d(WiFiDirectActivity.TAG, "Client socket - " + socket.isConnected)
+                Log.d(TAG, "Client socket - " + socket.isConnected)
                 val stream = socket.getOutputStream()
                 val cr = context.contentResolver
                 var `is`: InputStream? = null
                 try {
                     `is` = cr.openInputStream(Uri.parse(fileUri))
                 } catch (e: FileNotFoundException) {
-                    Log.d(WiFiDirectActivity.TAG, e.toString())
+                    Log.d(TAG, e.toString())
                 }
 
                 DeviceDetailFragment.copyFile(`is`!!, stream)
-                Log.d(WiFiDirectActivity.TAG, "Client: Data written")
+                Log.d(TAG, "Client: Data written")
             } catch (e: IOException) {
-                Log.e(WiFiDirectActivity.TAG, e.message)
+                Log.e(TAG, e.message)
             } finally {
                 if (socket != null) {
                     if (socket.isConnected) {
@@ -77,6 +76,7 @@ class FileTransferService : IntentService {
 
     companion object {
 
+        private val TAG = "FileTransferService"
         private const val SOCKET_TIMEOUT = 5000
         const val ACTION_SEND_FILE = "com.example.android.wifidirect.SEND_FILE"
         const val EXTRAS_FILE_PATH = "file_url"

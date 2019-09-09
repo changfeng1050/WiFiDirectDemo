@@ -39,6 +39,10 @@ class WiFiDirectBroadcastReceiver
 (private val manager: WifiP2pManager?, private val channel: Channel,
  private val activity: WiFiDirectActivity) : BroadcastReceiver() {
 
+    companion object {
+        private const val TAG = "WifiDirectReceiver"
+    }
+
     /*
      * (non-Javadoc)
      * @see android.content.BroadcastReceiver#onReceive(android.content.Context,
@@ -47,7 +51,6 @@ class WiFiDirectBroadcastReceiver
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION == action) {
-
             // UI update to indicate wifi p2p status.
             val state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
@@ -58,23 +61,23 @@ class WiFiDirectBroadcastReceiver
                 activity.resetData()
 
             }
-            Log.d(WiFiDirectActivity.TAG, "P2P state changed - $state")
+            Log.d(TAG, "P2P state changed - $state")
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION == action) {
 
             // request available peers from the wifi p2p manager. This is an
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
+            Log.d(TAG, "P2P peers changed")
             manager?.requestPeers(channel, activity.supportFragmentManager
                     .findFragmentById(R.id.frag_list) as PeerListListener)
-            Log.d(WiFiDirectActivity.TAG, "P2P peers changed")
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION == action) {
-
             if (manager == null) {
                 return
             }
 
             val networkInfo = intent
                     .getParcelableExtra<Parcelable>(WifiP2pManager.EXTRA_NETWORK_INFO) as NetworkInfo
+            Log.d(TAG, "P2P connection changed $networkInfo")
 
             if (networkInfo.isConnected) {
 
@@ -89,10 +92,11 @@ class WiFiDirectBroadcastReceiver
                 activity.resetData()
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION == action) {
+            val wifiP2pDevice = intent.getParcelableExtra<Parcelable>(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as WifiP2pDevice
+            Log.d(TAG, "P2P this device changed $wifiP2pDevice")
             val fragment = activity.supportFragmentManager
                     .findFragmentById(R.id.frag_list) as DeviceListFragment
-            fragment.updateThisDevice(intent.getParcelableExtra<Parcelable>(
-                    WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as WifiP2pDevice)
+            fragment.updateThisDevice(wifiP2pDevice)
 
         }
     }

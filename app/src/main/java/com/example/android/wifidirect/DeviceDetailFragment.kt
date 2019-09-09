@@ -85,7 +85,7 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
         val uri = data.data
         val statusText = mContentView!!.findViewById<View>(R.id.status_text) as TextView
         statusText.text = "Sending: " + uri!!
-        Log.d(WiFiDirectActivity.TAG, "Intent----------- $uri")
+        Log.d(TAG, "Intent----------- $uri")
         val serviceIntent = Intent(activity, FileTransferService::class.java)
         serviceIntent.action = FileTransferService.ACTION_SEND_FILE
         serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, uri.toString())
@@ -96,9 +96,7 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
     }
 
     override fun onConnectionInfoAvailable(info: WifiP2pInfo) {
-        if (progressDialog != null && progressDialog!!.isShowing) {
-            progressDialog!!.dismiss()
-        }
+        hideProgressDialog()
         this.info = info
         this.view!!.visibility = View.VISIBLE
 
@@ -178,9 +176,9 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
         override fun doInBackground(vararg params: Void): String? {
             try {
                 val serverSocket = ServerSocket(8988)
-                Log.d(WiFiDirectActivity.TAG, "Server: Socket opened")
+                Log.d(TAG, "Server: Socket opened")
                 val client = serverSocket.accept()
-                Log.d(WiFiDirectActivity.TAG, "Server: connection done")
+                Log.d(TAG, "Server: connection done")
                 val f = File(Environment.getExternalStorageDirectory().toString() + "/"
                         + context.packageName + "/wifip2pshared-" + System.currentTimeMillis()
                         + ".jpg")
@@ -190,13 +188,13 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
                     dirs.mkdirs()
                 f.createNewFile()
 
-                Log.d(WiFiDirectActivity.TAG, "server: copying files $f")
+                Log.d(TAG, "server: copying files $f")
                 val inputstream = client.getInputStream()
                 copyFile(inputstream, FileOutputStream(f))
                 serverSocket.close()
                 return f.absolutePath
             } catch (e: IOException) {
-                Log.e(WiFiDirectActivity.TAG, e.message)
+                Log.e(TAG, e.message)
                 return null
             }
 
@@ -228,6 +226,7 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
     }
 
     companion object {
+        private val TAG = "DeviceDetailFragment"
 
         const val CHOOSE_FILE_RESULT_CODE = 20
 
@@ -243,11 +242,17 @@ open class DeviceDetailFragment : Fragment(), ConnectionInfoListener {
                 out.close()
                 inputStream.close()
             } catch (e: IOException) {
-                Log.d(WiFiDirectActivity.TAG, e.toString())
+                Log.d(TAG, e.toString())
                 return false
             }
 
             return true
+        }
+    }
+
+    private fun hideProgressDialog() {
+        if (progressDialog != null && progressDialog!!.isShowing) {
+            progressDialog!!.dismiss()
         }
     }
 

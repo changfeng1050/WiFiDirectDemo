@@ -38,6 +38,9 @@ import java.util.*
  * parent activity to handle user interaction events
  */
 class DeviceListFragment : ListFragment(), PeerListListener {
+    companion object {
+        private const val TAG = "DeviceListFragment"
+    }
 
     private val peers = ArrayList<WifiP2pDevice>()
     private var progressDialog: ProgressDialog? = null
@@ -59,7 +62,7 @@ class DeviceListFragment : ListFragment(), PeerListListener {
     }
 
     private fun getDeviceStatus(deviceStatus: Int): String {
-        Log.d(WiFiDirectActivity.TAG, "Peer status :$deviceStatus")
+        Log.d(TAG, "Peer status :$deviceStatus")
         return when (deviceStatus) {
             WifiP2pDevice.AVAILABLE -> "Available"
             WifiP2pDevice.INVITED -> "Invited"
@@ -106,6 +109,7 @@ class DeviceListFragment : ListFragment(), PeerListListener {
                 }
                 if (bottom != null) {
                     bottom.text = getDeviceStatus(device.status)
+                    Log.d(TAG, "WiFiPeerListAdapter getView")
                 }
             }
 
@@ -120,6 +124,7 @@ class DeviceListFragment : ListFragment(), PeerListListener {
      * @param device WifiP2pDevice object
      */
     fun updateThisDevice(device: WifiP2pDevice) {
+        Log.d(TAG, "updateThisDevice device:$device")
         this.device = device
         var view = mContentView!!.findViewById<View>(R.id.my_name) as TextView
         view.text = device.deviceName
@@ -128,14 +133,15 @@ class DeviceListFragment : ListFragment(), PeerListListener {
     }
 
     override fun onPeersAvailable(peerList: WifiP2pDeviceList) {
-        if (progressDialog != null && progressDialog!!.isShowing) {
-            progressDialog!!.dismiss()
-        }
+        dismissProgressDialog()
         peers.clear()
         peers.addAll(peerList.deviceList)
+        for (s in peerList.deviceList) {
+            Log.d(TAG, "onPeersAvailable, $s")
+        }
         (listAdapter as WiFiPeerListAdapter).notifyDataSetChanged()
         if (peers.size == 0) {
-            Log.d(WiFiDirectActivity.TAG, "No devices found")
+            Log.d(TAG, "No devices found")
             return
         }
 
@@ -170,6 +176,12 @@ class DeviceListFragment : ListFragment(), PeerListListener {
         fun connect(config: WifiP2pConfig)
 
         fun disconnect()
+    }
+
+    private fun dismissProgressDialog() {
+        if (progressDialog != null && progressDialog!!.isShowing) {
+            progressDialog!!.dismiss()
+        }
     }
 
 }
