@@ -9,6 +9,18 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- If your app derives location information from Wi-Fi APIs,
+    android:usesPermissionFlags="neverForLocation"
+         don't include the "usesPermissionFlags" attribute. -->
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
+     />
+
+    <!-- If any feature in your app relies on precise location information,
+         don't include the "maxSdkVersion" attribute. -->
+    <uses-permission
+            android:required="true"
+            android:name="android.permission.ACCESS_FINE_LOCATION"
+    android:maxSdkVersion="32" />
 
     <!-- Google Play filtering -->
     <uses-feature
